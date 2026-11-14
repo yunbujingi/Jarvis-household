@@ -1,0 +1,24 @@
+# Local credentials, ledgers and generated artifacts
+.venv/
+.runtime/
+__pycache__/
+.pytest_cache/
+build/
+dist/
+*.egg-info/
+.env
+.env.*
+!.env.example
+*.sqlite3
+*.sqlite3-*
+*.db
+*.pem
+*.key
+.DS_Store
+# Only reviewed, generic documentation is publishable.
+/docs/*
+!/docs/guides/
+!/docs/images/
+# Existing deployment evidence / offline wheels stay local.
+/deploy/*
+!/deploy/community/

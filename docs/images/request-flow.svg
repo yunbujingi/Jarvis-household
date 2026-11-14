@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1110" viewBox="0 0 1600 1110" role="img">
+<rect width="100%" height="100%" fill="#f4f7fb"/>
+<text x="60" y="86" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="44" fill="#152b40">一句话如何变成真实记录</text>
+<text x="62" y="128" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="25" fill="#506579">典型单次工具调用；JWS 不额外调用语言模型。</text>
+<rect x="40" y="175" width="310" height="90" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
+<text x="64" y="225" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">用户 / 硬件</text>
+<polyline points="195,280 195,900" fill="none" stroke="#c5d0de" stroke-width="2" stroke-dasharray="7 7"/>
+<rect x="440" y="175" width="310" height="90" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
+<text x="464" y="225" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">官方小智</text>
+<polyline points="595,280 595,900" fill="none" stroke="#c5d0de" stroke-width="2" stroke-dasharray="7 7"/>
+<rect x="840" y="175" width="310" height="90" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
+<text x="864" y="225" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">JWS 出站桥</text>
+<polyline points="995,280 995,900" fill="none" stroke="#c5d0de" stroke-width="2" stroke-dasharray="7 7"/>
+<rect x="1240" y="175" width="310" height="90" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
+<text x="1264" y="225" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">MCP / 账本</text>
+<polyline points="1395,280 1395,900" fill="none" stroke="#c5d0de" stroke-width="2" stroke-dasharray="7 7"/>
+<polyline points="195,330 595,330" fill="none" stroke="#2468d3" stroke-width="3"/>
+<polygon points="595,330 582.58207108109,336.46490845758075 582.58207108109,323.53509154241925" fill="#2468d3"/>
+<text x="230" y="311" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="23" fill="#2468d3">① 语音或明确指令</text>
+<polyline points="595,430 995,430" fill="none" stroke="#2468d3" stroke-width="3"/>
+<polygon points="995,430 982.58207108109,436.46490845758075 982.58207108109,423.53509154241925" fill="#2468d3"/>
+<text x="630" y="411" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="23" fill="#2468d3">② tools/call + 参数</text>
+<polyline points="995,530 1395,530" fill="none" stroke="#087d70" stroke-width="3"/>
+<polygon points="1395,530 1382.58207108109,536.4649084575808 1382.58207108109,523.5350915424192" fill="#087d70"/>
+<text x="1030" y="511" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="23" fill="#087d70">③ 检查边界 / stdio</text>
+<polyline points="1395,720 995,720" fill="none" stroke="#087d70" stroke-width="3"/>
+<polygon points="995,720 1007.41792891891,713.5350915424192 1007.41792891891,726.4649084575808" fill="#087d70"/>
+<text x="1030" y="701" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="23" fill="#087d70">⑤ 真实结果 / 明确错误</text>
+<polyline points="995,800 595,800" fill="none" stroke="#2468d3" stroke-width="3"/>
+<polygon points="595,800 607.41792891891,793.5350915424192 607.41792891891,806.4649084575808" fill="#2468d3"/>
+<text x="630" y="781" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="23" fill="#2468d3">⑥ 返回工具结果</text>
+<polyline points="595,880 195,880" fill="none" stroke="#2468d3" stroke-width="3"/>
+<polygon points="195,880 207.41792891890998,873.5350915424192 207.41792891890998,886.4649084575808" fill="#2468d3"/>
+<text x="230" y="861" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="23" fill="#2468d3">⑦ 简短语音回答</text>
+<rect x="1130" y="580" width="425" height="95" rx="20" fill="#eef8f5" stroke="#add7cc" stroke-width="2"/>
+<text x="1154" y="630" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#087d70">④ 查询或原子事务</text>
+<text x="1154" y="671" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">本地计算日期、数量与金额</text>
+<rect x="60" y="955" width="1480" height="100" rx="20" fill="#edf3ff" stroke="#c7d8f3" stroke-width="2"/>
+<text x="90" y="1006" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="27" fill="#2468d3">更短的回答：服务端筛选 → 建议 3 条以内 → 按需继续查询</text>
+<text x="90" y="1041" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="21" fill="#506579">幂等重试复用 request_id；超时不等于事务回滚。图中不表示固定或已测得的延迟。</text>
+</svg>

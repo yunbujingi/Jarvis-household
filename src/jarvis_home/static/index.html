@@ -1,0 +1,7 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="home-token" content="__TOKEN__"><title>家庭助手 · JWS</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head><body><main>
+<header><span class="eyebrow">JWS / 家庭助手</span><span class="badge">本机私有预览</span><h1>家里的事，说清就记住。</h1><p>先从冰箱和日常开销开始。记录、查询，也随时撤销。</p></header>
+<section class="composer"><form id="command"><label for="input">告诉管家</label><textarea id="input" maxlength="2000" placeholder="买了三个番茄、一盒牛奶，花了15元" required></textarea><div class="actions"><span>当前支持文字；小智语音接入待联调</span><button id="send">记录 / 查询</button></div></form><div class="examples"><button data-text="买了三个番茄、一盒牛奶，花了15元">入库并记账</button><button data-text="午饭38，微信">记午饭</button><button data-text="这个月花了多少">查本月开销</button><button data-text="护照放在书房第二个抽屉">记物品位置</button></div><p id="result" role="status" aria-live="polite">尚未提交记录。</p><button id="undo" class="secondary">撤销上一笔</button></section>
+<section class="stats"><article><span>本月净支出</span><strong id="spend">—</strong></article><article><span>物品记录</span><strong id="count">—</strong></article><article><span>待补充的草稿</span><strong id="drafts">—</strong></article></section>
+<div class="columns"><section><h2>家中物品</h2><p class="hint">位置是记录值；到期日仅按明确填写保存。</p><ul id="items"></ul></section><section><h2>本月账目</h2><ul id="entries"></ul><h2>最近操作</h2><ul id="history"></ul></section></div>
+<footer>主人单人版 · 内容加密存于本机 · 新页面尚未连接 HA 或小佩；原有接入独立运行。</footer>
+</main></body></html>

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1130" viewBox="0 0 1600 1130" role="img">
+<rect width="100%" height="100%" fill="#f4f7fb"/>
+<text x="60" y="86" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="44" fill="#152b40">JWS 家庭助手 · 连接拓扑</text>
+<text x="62" y="128" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="25" fill="#506579">保留现有语音与家居体验，增加独立的家庭账本。</text>
+<rect x="60" y="180" width="350" height="155" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
+<text x="84" y="230" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">小智硬件</text>
+<text x="84" y="271" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">收音 · 播放 · 设备交互</text>
+<rect x="570" y="170" width="570" height="175" rx="20" fill="#edf3ff" stroke="#a9c4ef" stroke-width="2"/>
+<text x="594" y="220" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#2468d3">官方小智</text>
+<text x="594" y="261" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">现有语音服务与模型</text>
+<text x="594" y="295" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">理解指令 · 选择工具 · 组织回答</text>
+<polyline points="410,255 570,255" fill="none" stroke="#2468d3" stroke-width="3"/>
+<polygon points="570,255 557.58207108109,261.46490845758075 557.58207108109,248.53509154241925" fill="#2468d3"/>
+<polygon points="410,255 422.41792891891,248.53509154241925 422.41792891891,261.46490845758075" fill="#2468d3"/>
+<text x="430" y="234" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#2468d3">语音链路</text>
+<rect x="60" y="430" width="990" height="355" rx="20" fill="#eef8f5" stroke="#add7cc" stroke-width="2"/>
+<text x="84" y="480" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#087d70">NAS / 独立主机</text>
+<rect x="90" y="520" width="290" height="155" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
+<text x="114" y="570" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">JWS 出站桥</text>
+<text x="114" y="611" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">凭据隔离 / 断线重连</text>
+<text x="114" y="645" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">只转发三个账本工具</text>
+<rect x="425" y="520" width="270" height="155" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
+<text x="449" y="570" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">MCP 工具</text>
+<text x="449" y="611" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">记录 · 查询 · 撤销</text>
+<text x="449" y="645" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">字段验证 / 确定计算</text>
+<rect x="740" y="520" width="280" height="155" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
+<text x="764" y="570" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">加密账本</text>
+<text x="764" y="611" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">SQLite / 事务 / 审计</text>
+<text x="764" y="645" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">一致性备份与密钥</text>
+<polyline points="380,598 425,598" fill="none" stroke="#087d70" stroke-width="3"/>
+<polygon points="425,598 412.58207108109,604.4649084575808 412.58207108109,591.5350915424192" fill="#087d70"/>
+<polygon points="380,598 392.41792891891,591.5350915424192 392.41792891891,604.4649084575808" fill="#087d70"/>
+<polyline points="695,598 740,598" fill="none" stroke="#087d70" stroke-width="3"/>
+<polygon points="740,598 727.58207108109,604.4649084575808 727.58207108109,591.5350915424192" fill="#087d70"/>
+<polygon points="695,598 707.41792891891,591.5350915424192 707.41792891891,604.4649084575808" fill="#087d70"/>
+<polyline points="340,520 340,390 820,390 820,345" fill="none" stroke="#087d70" stroke-width="3"/>
+<polygon points="820,345 826.4649084575808,357.41792891891 813.5350915424192,357.41792891891" fill="#087d70"/>
+<polygon points="340,520 333.53509154241925,507.58207108109 346.46490845758075,507.58207108109" fill="#087d70"/>
+<text x="374" y="378" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#087d70">NAS 主动建立 WSS；无需公网应用端口</text>
+<text x="94" y="738" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="24" fill="#087d70">本仓库的运行范围  /  不持有 HA 或小佩账户凭据</text>
+<rect x="1140" y="435" width="400" height="145" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
+<text x="1164" y="485" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">既有 Home Assistant</text>
+<text x="1164" y="526" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">原家居工具桥</text>
+<text x="1164" y="560" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">独立配置与运行</text>
+<rect x="1140" y="645" width="400" height="145" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
+<text x="1164" y="695" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">既有猫咪管家</text>
+<text x="1164" y="736" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">原宠物工具桥</text>
+<text x="1164" y="770" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">独立部署与设备安全规则</text>
+<polyline points="1140,255 1340,255 1340,435" fill="none" stroke="#2468d3" stroke-width="3"/>
+<polygon points="1340,435 1333.5350915424192,422.58207108109 1346.4649084575808,422.58207108109" fill="#2468d3"/>
+<polygon points="1140,255 1152.41792891891,248.53509154241925 1152.41792891891,261.46490845758075" fill="#2468d3"/>
+<polyline points="1500,645 1570,645 1570,310 1140,310" fill="none" stroke="#2468d3" stroke-width="3"/>
+<polygon points="1140,310 1152.41792891891,303.53509154241925 1152.41792891891,316.46490845758075" fill="#2468d3"/>
+<polygon points="1500,645 1512.41792891891,638.5350915424192 1512.41792891891,651.4649084575808" fill="#2468d3"/>
+<text x="1176" y="391" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="21" fill="#506579">外部集成 / 不包含其源码</text>
+<rect x="60" y="845" width="1480" height="215" rx="20" fill="#fff8ed" stroke="#e4cda6" stroke-width="2"/>
+<text x="90" y="898" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#91621c">本机预览 · 独立数据源</text>
+<rect x="95" y="925" width="350" height="92" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
+<text x="119" y="975" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">浏览器文字入口</text>
+<rect x="615" y="925" width="400" height="92" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
+<text x="639" y="975" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">本机账本 / 回环 HTTP</text>
+<polyline points="445,970 615,970" fill="none" stroke="#91621c" stroke-width="3"/>
+<polygon points="615,970 602.58207108109,976.4649084575808 602.58207108109,963.5350915424192" fill="#91621c"/>
+<polygon points="445,970 457.41792891891,963.5350915424192 457.41792891891,976.4649084575808" fill="#91621c"/>
+<text x="1070" y="959" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="24" fill="#91621c">不与 NAS 自动同步</text>
+<text x="1070" y="997" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">不提供远程成员认证</text>
+<text x="62" y="1107" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="20" fill="#506579">箭头表示数据流；官方模型可见被调用工具的参数与结果。</text>
+</svg>

@@ -1,0 +1,27 @@
+# Fresh deployment only. Existing installations must keep their project/volume identity.
+name: jws-household-example
+services:
+  household:
+    build:
+      context: ../..
+      dockerfile: deploy/community/Dockerfile
+    image: jws-household:0.2.1-source
+    restart: unless-stopped
+    init: true
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 64
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    volumes:
+      - household_data:/data
+    logging:
+      driver: json-file
+      options:
+        max-size: 2m
+        max-file: "2"
+volumes:
+  household_data:
