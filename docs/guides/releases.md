@@ -8,8 +8,8 @@
 2. 更新pyproject.toml、Compose镜像标签和CHANGELOG.md为同一版本。依赖变更同时更新requirements.lock及许可清单。
 3. 运行测试、ruff、pip check、依赖闭包检查、pip-audit和仓库检查。
 4. 构建到该版本专属目录，运行verify_dist.py验证实际wheel和sdist；脚本安装到新的venv，不从原源码目录导入。
-5. 运行release_manifest.py，生成build.json（提交、版本、平台、工作区标志）与SHA256SUMS。源码有未提交变更时不能把产物标作干净提交构建。
-6. 推送PR，核对最终head对应的CI；检查两个Python环境、安装包、审计及x86_64容器均通过。
+5. 运行release_manifest.py，生成build.json（提交、版本、平台、构建输入变更标志）与SHA256SUMS。源码有未提交变更时不能把产物标作干净提交构建。
+6. 推送PR，核对最终head对应的CI（checkout明确检出PR head，build.json不使用合并测试临时提交）；检查两个Python环境、安装包、审计及x86_64容器均通过。
 7. 正式包沿用dist/下版本专属目录；CI产物默认保留14天，维护者应将需要长期保存的正式包与校验清单另行保管，CI到期不意味着正式交付可删除。
 8. 只有维护者另行决定许可证和公开方式后，才考虑公开仓库、Release、包或镜像。本工作流不执行这些动作。
 

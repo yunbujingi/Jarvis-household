@@ -20,7 +20,9 @@ def main():
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
     manifest={'version':version,'commit':commit,'python':platform.python_version(),
               'platform':platform.system(),'architecture':platform.machine(),
-              'tracked_dirty':bool(subprocess.check_output(['git','diff','HEAD','--','src','pyproject.toml','README.md'],cwd=root)),
+              'build_inputs_dirty':bool(subprocess.check_output(['git','diff','HEAD','--',
+                  'src','tests','scripts','docs/guides','docs/images','deploy/community',
+                  'pyproject.toml','requirements.lock','MANIFEST.in','README.md','CHANGELOG.md','SECURITY.md','CONTRIBUTING.md'],cwd=root)),
               'sha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in files}}
     (args.directory/'build.json').write_text(json.dumps(manifest,indent=2)+'\n')
     (args.directory/'SHA256SUMS').write_text(''.join(f'{digest}  {name}\n' for name,digest in manifest['sha256'].items()))
