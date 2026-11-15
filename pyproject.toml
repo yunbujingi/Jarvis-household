@@ -6,6 +6,8 @@ name = "jarvis-home"
 version = "0.3.0"
 description = "Shared household ledger, inventory and MCP bridge for Xiaozhi"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
 dependencies = ["cryptography==50.0.2", "fastapi==0.162.7", "uvicorn==0.54.0", "mcp==1.30.0", "websockets==14.2"]
 [project.optional-dependencies]

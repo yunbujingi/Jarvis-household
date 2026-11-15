@@ -6,7 +6,7 @@
 
 | 范围 | 来源与处理 |
 | --- | --- |
-| src、tests、scripts、部署模板、文档 | 本仓库第一方实现与维护历史；未复制外部家居/小佩项目源码。项目许可证待维护者决定 |
+| src、tests、scripts、部署模板、文档 | 本仓库第一方实现与维护历史；未复制外部家居/小佩项目源码。第一方代码按MIT授权，见根目录LICENSE |
 | topology / request-flow SVG、PNG | scripts/render_diagrams.py生成的原创技术图；不含真实家庭数据或截图 |
 | 图中文字 | 系统字体绘制；未分发字体二进制。SVG仅引用字体名称，PNG仅含栅格结果；再分发前维护者须复核所用字体条款 |
 | 绘图工具Pillow | 仅制作图片使用，不是运行依赖；使用者需遵守其HPND许可，重绘可使用自行合法取得的Noto CJK字体 |
@@ -88,6 +88,6 @@
 
 `packageurl-python`在本机安装包中没有由本脚本识别出的许可文件，仅有MIT元数据声明；公开分发前须补核其上游许可证及随包材料。其余间接/开发依赖已生成可复核清单，但未逐行审阅所有条款或所有底层原生库。不得宣称“已完成全部法律合规认证”。
 
-## 项目许可证待定
+## 项目许可证
 
-若希望保持使用和再分发条件简洁，可优先考虑[MIT](https://choosealicense.com/licenses/mit/)；若更重视明确的专利授权条款，可考虑[Apache-2.0](https://choosealicense.com/licenses/apache-2.0/)。最终决定由维护者作出，本轮不创建LICENSE、不替用户授权。无许可证的私人预览仓库不等于已开源。
+维护者于2026-11-16选择MIT，根目录[LICENSE](../../LICENSE)为实际授权文本。依赖仍按各自许可证授权，项目MIT不替代其条款。MIT条件说明见[GitHub许可指南](https://choosealicense.com/licenses/mit/)。此清单不是法律合规认证。

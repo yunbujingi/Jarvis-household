@@ -4,7 +4,7 @@
 
 JWS 是运行在 NAS 或独立主机上的家庭账本，通过 MCP（模型上下文协议）接入官方小智。保留已有模型与音色，用三个工具完成记录、查询和撤销；已有 Home Assistant 与猫咪管家继续通过各自的工具桥工作。
 
-> 当前版本 **0.3.0 开源预览准备版**。仓库保持 Private，供获授权用户独立部署；许可证待定，尚未授予开源许可。
+> 当前版本 **0.3.0 开源预览版**，采用 [MIT 许可证](LICENSE)。面向小智的家庭共享账本、物品管理与 MCP 工具桥，可在 NAS 或独立主机部署。
 
 ![家庭助手连接拓扑](docs/images/topology.png)
 
@@ -125,7 +125,7 @@ python3 scripts/check_repository.py
 
 测试使用临时数据库，不连接真实小智账号或家居设备。CI 执行测试、构建、仓库检查与容器构建；**不会发布软件包、部署 NAS 或执行设备动作**。
 
-每次 PR 的 CI 分别验证 Python 3.12/3.13、实际 wheel/sdist、依赖漏洞、容器权限与恢复。真实小智语音及目标 NAS 的 0.3.0 验收仍须人工完成；CI 不代表完整语音链路。详见[验收与语音脚本](docs/guides/verification.md)、[性能基准](docs/guides/performance.md)和[版本交付流程](docs/guides/releases.md)。
+每次 PR 的 CI 分别验证 Python 3.12/3.13、实际 wheel/sdist、依赖漏洞、容器权限与恢复。0.3.0 已完成一次 Linux x86_64 NAS 部署和真实小智入库、纠错、撤销验收，见[脱敏验收报告](docs/guides/nas-voice-acceptance.md)；CI 不代表完整语音链路。详见[验收与语音脚本](docs/guides/verification.md)、[性能基准](docs/guides/performance.md)和[版本交付流程](docs/guides/releases.md)。
 
 ## 目录导航
 
@@ -147,8 +147,8 @@ scripts/              仓库检查与图片生成
 
 ## 路线与贡献
 
-下一阶段：完成物品真人语音验收、草稿补全与备份运维；成员身份、主动提醒和跨模块调度另行设计，不属于本预览版。完整范围见[路线图](docs/guides/roadmap.md)。
+下一阶段：草稿补全与备份运维；成员身份、主动提醒和跨模块调度另行设计，不属于本预览版。完整范围见[路线图](docs/guides/roadmap.md)。
 
-提交变更前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。许可证、依赖许可清单和公开发布检查见[开源准备清单](docs/guides/open-source-readiness.md)。当前没有公开发布或开源许可承诺。
+提交变更前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。许可证、依赖许可清单和公开发布检查见[开源准备清单](docs/guides/open-source-readiness.md)。代码按 MIT 授权；尚未发布公共软件包或容器镜像。
 
 相关项目：[小智 ESP32 固件](https://github.com/78/xiaozhi-esp32)、[官方 MCP 示例](https://github.com/78/mcp-calculator)、[Home Assistant](https://www.home-assistant.io/)。它们是独立项目，JWS 不代表其官方立场。
