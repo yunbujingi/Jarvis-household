@@ -10,6 +10,7 @@ import signal
 import ssl
 import sys
 import time
+from uuid import uuid4
 from urllib.parse import parse_qsl, urlsplit
 
 from websockets.asyncio.client import connect
@@ -17,6 +18,8 @@ from websockets.exceptions import InvalidStatus
 
 MAX_BYTES = 262144
 CALL_TIMEOUT = 20
+IO_TIMEOUT = 5
+DEADLINE_INTERVAL = 0.25
 TOOLS = frozenset({"household_query", "household_record", "household_undo"})
 LOGGER = logging.getLogger("jws.transport")
 LOGGER.handlers[:] = [logging.NullHandler()]
@@ -64,12 +67,21 @@ def configure():
     print("endpoint_saved")
 
 
+class ChildExited(RuntimeError):
+    """Recoverable subprocess failure; never contains child output."""
+
+
+def diagnostic(event, **fields):
+    # Callers supply only fixed categories, local random IDs and numeric metrics.
+    print(json.dumps({"event": event, **fields}), flush=True)
+
+
 def status(phase):
     path = Path(os.environ.get("JWS_STATUS_FILE", "/tmp/jws-status.json"))
     temp = path.with_suffix(".new")
     temp.write_text(json.dumps({"phase": phase, "updated_at": time.time()}))
     temp.replace(path)
-    print(json.dumps({"event": "household_bridge", "phase": phase}), flush=True)
+    diagnostic("household_bridge", phase=phase)
 
 
 def decode_message(raw):
@@ -88,6 +100,14 @@ async def relay(ws, child):
     pending = {}
     initialized = set()
 
+    def finish(request_id, outcome):
+        entry = pending.pop(request_id, None)
+        if entry and entry["tool"]:
+            diagnostic("tool_call", call_id=entry["trace"], tool=entry["tool"],
+                       elapsed_ms=round((time.monotonic() - entry["started"]) * 1000, 2),
+                       outcome=outcome)
+
+
     async def incoming():
         async for raw in ws:
             msg = decode_message(raw)
@@ -95,34 +115,45 @@ async def relay(ws, child):
             request_id = msg.get("id")
             if request_id is not None and (type(request_id) not in (str, int) or len(str(request_id)) > 128):
                 raise ValueError("invalid_id")
+            if method == "notifications/cancelled":
+                cancelled_id = msg.get("params", {}).get("requestId")
+                if type(cancelled_id) not in (str, int):
+                    raise ValueError("invalid_cancel_id")
+                finish(cancelled_id, "cancelled_unknown")
             if method and request_id is not None:
                 if request_id in pending or len(pending) >= 16:
                     raise ValueError("too_many_requests")
-                pending[request_id] = time.monotonic()
+                tool = msg.get("params", {}).get("name") if method == "tools/call" else None
+                pending[request_id] = {"started": time.monotonic(), "trace": uuid4().hex,
+                                       "tool": tool if tool in TOOLS else None}
                 if method == "initialize":
                     initialized.add(request_id)
             if method == "tools/call" and msg.get("params", {}).get("name") not in TOOLS:
                 raise ValueError("tool_not_allowed")
             child.stdin.write((raw + "\n").encode())
-            await asyncio.wait_for(child.stdin.drain(), 5)
+            await asyncio.wait_for(child.stdin.drain(), IO_TIMEOUT)
 
     async def outgoing():
         while line := await child.stdout.readline():
             msg = decode_message(line.decode())
-            await asyncio.wait_for(ws.send(line.decode().rstrip("\n")), 5)
+            await asyncio.wait_for(ws.send(line.decode().rstrip("\n")), IO_TIMEOUT)
             request_id = msg.get("id")
             if request_id in pending and ("result" in msg or "error" in msg):
-                pending.pop(request_id)
+                outcome = "error" if "error" in msg or msg.get("result", {}).get("isError") else "success"
+                finish(request_id, outcome)
                 if request_id in initialized:
                     initialized.remove(request_id)
                     if "result" in msg:
                         status("ready")
-        raise ValueError("child_exited")
+        raise ChildExited("child_exited")
 
     async def deadlines():
         while True:
-            await asyncio.sleep(1)
-            if any(time.monotonic() - started > CALL_TIMEOUT for started in pending.values()):
+            await asyncio.sleep(DEADLINE_INTERVAL)
+            expired = [key for key, entry in pending.items() if time.monotonic() - entry["started"] > CALL_TIMEOUT]
+            if expired:
+                for key in expired:
+                    finish(key, "timeout_unknown")
                 raise TimeoutError("request_timeout")
 
     tasks = [asyncio.create_task(f()) for f in (incoming, outgoing, deadlines)]
@@ -134,6 +165,21 @@ async def relay(ws, child):
         for task in tasks:
             task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
+        for key in list(pending):
+            finish(key, "interrupted_unknown")
+
+
+async def stop_child(child):
+    if child.returncode is None:
+        try:
+            child.terminate()
+        except ProcessLookupError:
+            pass
+        try:
+            await asyncio.wait_for(child.wait(), 3)
+        except TimeoutError:
+            child.kill()
+            await child.wait()
 
 
 async def session(endpoint):
@@ -150,17 +196,12 @@ async def session(endpoint):
         try:
             await relay(ws, child)
         finally:
-            if child.returncode is None:
-                child.terminate()
-                try:
-                    await asyncio.wait_for(child.wait(), 3)
-                except TimeoutError:
-                    child.kill()
-                    await child.wait()
+            await stop_child(child)
 
 
 async def run():
     attempt = 0
+    status("starting")
     while True:
         if not endpoint_path().exists():
             status("awaiting_configuration")
@@ -168,14 +209,18 @@ async def run():
             continue
         try:
             endpoint = read_endpoint(endpoint_path())
-        except ValueError:
-            status("configuration_rejected")
+        except (ValueError, OSError):
+            status("configuration_error")
             return
         started = time.monotonic()
         try:
             await session(endpoint)
         except asyncio.CancelledError:
             raise
+        except ChildExited:
+            diagnostic("transport_failure", category="child_exited")
+        except TimeoutError:
+            diagnostic("transport_failure", category="timeout")
         except (ssl.SSLCertVerificationError, ValueError):
             status("protocol_or_tls_error")
             return
@@ -184,10 +229,12 @@ async def run():
                 status("authentication_rejected")
                 return
         except Exception:
-            pass  # Never log exceptions containing endpoint credentials or data.
+            diagnostic("transport_failure", category="connection_lost")
         attempt = 0 if time.monotonic() - started > 60 else min(attempt + 1, 6)
         status("reconnecting")
-        await asyncio.sleep(min(60, 2 ** attempt) + random.random())
+        delay = min(60, 2 ** attempt) + random.random()
+        diagnostic("retry", attempt=attempt, delay_seconds=round(delay, 2))
+        await asyncio.sleep(delay)
 
 
 async def managed_run():
