@@ -14,9 +14,9 @@
 8. 仓库按维护者决定公开；公共 Release、包和镜像仍需单独决定，本工作流不发布这些产物。
 
 ```sh
-.venv/bin/python -m build --outdir dist/0.3.0-preview
-.venv/bin/python scripts/verify_dist.py dist/0.3.0-preview
-.venv/bin/python scripts/release_manifest.py dist/0.3.0-preview
+.venv/bin/python -m build --outdir dist/0.4.0a1-preview
+.venv/bin/python scripts/verify_dist.py dist/0.4.0a1-preview
+.venv/bin/python scripts/release_manifest.py dist/0.4.0a1-preview
 ```
 
 检查SHA256SUMS：Linux使用`sha256sum -c SHA256SUMS`，macOS使用`shasum -a 256 -c SHA256SUMS`，从产物目录运行。

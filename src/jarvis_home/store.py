@@ -106,10 +106,56 @@ class Store:
                 "net_spend_cents": totals["支出"] - totals["退款"], "categories_cents": categories,
                 "integrations": {"ha": "existing_bridge_not_connected_here", "petkit": "existing_bridge_not_connected_here"}}
 
-    def execute(self, request_id, changes=(), *, text="", undo=False, draft=False):
+    def _draft_record(self, db, draft_id, records):
+        # Older drafts only exist in encrypted operation payloads. Project them
+        # lazily; resolving one stores state in the existing records table.
+        row = db.execute("SELECT payload FROM operations WHERE id=?", (draft_id,)).fetchone()
+        if not row:
+            raise Conflict("草稿不存在")
+        op = self.unpack("operation:" + draft_id, row[0])
+        if not op["input"].get("draft"):
+            raise Conflict("指定记录不是草稿")
+        rid = "draft_" + hashlib.sha256(draft_id.encode()).hexdigest()[:32]
+        return records.get(rid) or {"id": rid, "type": "draft", "name": "待补全记录",
+            "draft_id": draft_id, "text": op["input"]["text"], "state": "pending",
+            "created_at": op["at"], "version": 1, "deleted": False}
+
+    @staticmethod
+    def _draft_view(record):
+        return {key: record[key] for key in ("draft_id", "text", "state", "created_at", "version")}
+
+    def drafts(self, state="pending", offset=0, limit=20):
+        if state not in ("pending", "completed", "cancelled", "all"):
+            raise ValueError("草稿状态无效")
+        if offset < 0 or not 1 <= limit <= 30:
+            raise ValueError("分页范围无效")
+        with self.connect() as db:
+            db.execute("BEGIN")
+            records = self.records(db)
+            rows = []
+            for rid, payload in db.execute("SELECT id,payload FROM operations ORDER BY seq DESC"):
+                if self.unpack("operation:" + rid, payload)["input"].get("draft"):
+                    record = self._draft_record(db, rid, records)
+                    if state == "all" or record["state"] == state:
+                        rows.append(self._draft_view(record))
+        return {"draft_count": len(rows), "records": rows[offset:offset + limit],
+                "has_more": offset + limit < len(rows)}
+
+    def execute(self, request_id, changes=(), *, text="", undo=False, draft=False,
+                draft_id=None, expected_draft_version=None, cancel_draft=False):
         # IDs from every entry point share the same validation contract.
         from .models import Command
         Command(request_id=request_id, text=text or "structured")
+        if draft_id is not None:
+            Command(request_id=draft_id, text="draft")
+            if type(expected_draft_version) is not int or expected_draft_version < 1:
+                raise ValueError("补全或取消草稿需要当前版本")
+            if undo or draft or (cancel_draft and changes) or (not cancel_draft and not changes):
+                raise ValueError("草稿补全需要明确变更；取消不能混用其他操作")
+        elif expected_draft_version is not None or cancel_draft:
+            raise ValueError("需要明确草稿编号")
+        if draft and (changes or not text.strip()):
+            raise ValueError("保存草稿需要原始输入，不能同时执行变更")
         changes = [c if isinstance(c, Change) else Change.model_validate(c) for c in changes]
         if len(changes) > 20 or (undo and (changes or draft)):
             raise ValueError("每次最多20项；撤销不能与其他操作混用")
@@ -122,6 +168,9 @@ class Store:
                     value.pop(field)
             serialized.append(value)
         body = {"changes": serialized, "text": text, "undo": undo, "draft": draft}
+        if draft_id is not None:
+            body.update(draft_id=draft_id, expected_draft_version=expected_draft_version,
+                        cancel_draft=cancel_draft)
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
             previous = db.execute("SELECT digest,payload FROM operations WHERE id=?", (request_id,)).fetchone()
@@ -139,6 +188,13 @@ class Store:
                 return {**self.unpack("operation:" + request_id, previous[1])["result"], "replayed": True}
             records = self.records(db)
             before, after = {}, {}
+            if draft_id is not None:
+                pending = self._draft_record(db, draft_id, records)
+                if pending["state"] != "pending" or pending["version"] != expected_draft_version:
+                    raise Conflict("草稿状态或版本已变化，请刷新后重试")
+                before[pending["id"]] = pending.copy()
+                after[pending["id"]] = {**pending, "version": pending["version"] + 1,
+                    "state": "cancelled" if cancel_draft else "completed"}
             if undo:
                 undone = set()
                 target = None
@@ -162,6 +218,9 @@ class Store:
                     if old is None:
                         after[rid]["deleted"] = True
                 message = "已撤销上一笔记录。"
+            elif cancel_draft:
+                target = None
+                message = "已取消草稿，未写入库存或账目。"
             elif draft:
                 target = None
                 message = "这句话暂未写入库存或账目，已保留草稿。请按示例补充数量、金额或位置。"
@@ -185,7 +244,7 @@ class Store:
                                           category=change.category, payment=change.payment)
                         before[rid] = None
                     else:
-                        matches = [r for r in records.values() if not r.get("deleted") and
+                        matches = [r for r in records.values() if r["type"] in ("item", "expense") and not r.get("deleted") and
                                    (r["id"] == change.record_id if change.record_id else r["name"] == change.name)]
                         if len(matches) != 1:
                             raise Conflict("没有唯一匹配记录，请指定记录编号")
@@ -244,7 +303,12 @@ class Store:
             for record in after.values():
                 self.save(db, record)
             result = {"request_id": request_id, "status": "draft" if draft else "completed", "message": message,
-                      "records": list(after.values()), "replayed": False}
+                      "records": [r for r in after.values() if r["type"] != "draft"], "replayed": False}
+            draft_states = [r for r in after.values() if r["type"] == "draft"]
+            if draft_states:
+                result["draft"] = self._draft_view(draft_states[0])
+            elif draft:
+                result.update(draft_id=request_id, draft_version=1)
             op = {"input": body, "before": before, "after": after, "undo_of": target[0] if target else None,
                   "result": result, "at": datetime.now(ZoneInfo("Asia/Shanghai")).isoformat()}
             db.execute("INSERT INTO operations(id,digest,payload) VALUES (?,?,?)", (request_id, digest, self.pack("operation:" + request_id, op)))
