@@ -4,12 +4,12 @@
 
 ## 环境与工作流
 
-使用 Python 3.12，在仓库根目录创建 `.venv`，安装 `pip install -e '.[dev]'`。从 `main` 创建功能分支，保持一次改动解决一个问题。
+使用 Python 3.12或3.13，在仓库根目录创建 `.venv`，安装 `pip install -r requirements.lock -e '.[dev]'`。从 `main` 创建 `codex/` 功能分支，保持一次改动解决一个问题。
 
 1. 阅读 README、架构与相关模块，检查 Git 状态。
 2. 采用最小修改，保持现有字段与工具调用兼容。
 3. 涉及数据写入时覆盖幂等、事务失败、撤销和版本冲突；涉及日期时覆盖北京时间的边界。
-4. 运行 `pytest -q`、`python -m compileall -q src`、`pip check`、`python -m build`。
+4. 运行 `pytest -q`、`python -m compileall -q src`、`pip check`、`ruff check src tests scripts`、`python scripts/dependencies.py`、`python -m build`及`python scripts/verify_dist.py dist`。
 5. 暂存文件后运行 `python scripts/check_repository.py`，审查 `git diff --cached`。
 6. PR 说明问题、行为变化、验证证据、数据兼容与未完成项。
 
@@ -24,3 +24,8 @@
 ## 依赖与许可证
 
 运行依赖由 `pyproject.toml` 定义；`requirements.lock` 是已验证环境快照，包含开发依赖，不是带哈希的跨平台锁文件。更新依赖需说明原因并重新执行测试、构建和部署验证。公开发布前确认项目许可证与第三方许可兼容，不将外部项目代码或图片无来源复制进来。
+
+
+新增临时材料放.work/任务目录，记录用途、版本、保留理由与复核日期，不纳入提交。测试自己的TemporaryDirectory可在退出时清理；不得扫描清理他人数据。正式包在dist/版本目录，验收摘要在docs/guides；真实数据与私有证据不上传。
+
+提交前显式选择本次文件，避免git add .纳入无关内容；审查暂存差异并运行仓库检查。每个PR至少说明纠错、幂等、超时不确定性、恢复与平台测试边界。许可证决定前不接收来源不清的代码或素材。

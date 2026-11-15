@@ -1,0 +1,5 @@
+# CI/local isolated acceptance ONLY; never apply this override to a real deployment.
+services:
+  household:
+    network_mode: none
+    restart: "no"

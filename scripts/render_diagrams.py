@@ -70,15 +70,15 @@ class Canvas:
 def topology():
     c = Canvas(1130)
     c.text(60, 42, 'JWS 家庭助手 · 连接拓扑', 44)
-    c.text(62, 103, '保留现有语音与家居体验，增加独立的家庭账本。', 25, MUTED)
+    c.text(62, 103, '家庭共享账本 · 无成员身份鉴别 · 保留现有语音与家居体验。', 25, MUTED)
     c.box(60, 180, 350, 155, '小智硬件', ['收音 · 播放 · 设备交互'])
     c.box(570, 170, 570, 175, '官方小智', ['现有语音服务与模型', '理解指令 · 选择工具 · 组织回答'], '#edf3ff', '#a9c4ef', BLUE)
     c.line([(410, 255),(570, 255)], BLUE, arrow=True, both=True)
     c.text(430, 212, '语音链路', 22, BLUE)
     c.box(60, 430, 990, 355, 'NAS / 独立主机', tint='#eef8f5', border='#add7cc', title_color=GREEN)
-    c.box(90, 520, 290, 155, 'JWS 出站桥', ['凭据隔离 / 断线重连', '只转发三个账本工具'])
-    c.box(425, 520, 270, 155, 'MCP 工具', ['记录 · 查询 · 撤销', '字段验证 / 确定计算'])
-    c.box(740, 520, 280, 155, '加密账本', ['SQLite / 事务 / 审计', '一致性备份与密钥'])
+    c.box(90, 520, 290, 155, 'JWS 出站桥', ['凭据隔离 / 脱敏耗时', '只转发三个账本工具'])
+    c.box(425, 520, 270, 155, 'MCP 工具', ['记录 · 查询 · 撤销', '入库纠错 / 版本检查'])
+    c.box(740, 520, 280, 155, '加密账本', ['SQLite / 事务 / 审计', '校验备份 / 独立恢复'])
     c.line([(380, 598),(425, 598)], GREEN, arrow=True, both=True)
     c.line([(695, 598),(740, 598)], GREEN, arrow=True, both=True)
     c.line([(340, 520),(340, 390),(820, 390),(820, 345)], GREEN, arrow=True, both=True)
@@ -112,7 +112,7 @@ def request_flow():
     steps = [
         (0,1,330,'① 语音或明确指令',BLUE),
         (1,2,430,'② tools/call + 参数',BLUE),
-        (2,3,530,'③ 检查边界 / stdio',GREEN),
+        (2,3,530,'③ 限时转发 / stdio',GREEN),
         (3,2,720,'⑤ 真实结果 / 明确错误',GREEN),
         (2,1,800,'⑥ 返回工具结果',BLUE),
         (1,0,880,'⑦ 简短语音回答',BLUE),
@@ -120,10 +120,10 @@ def request_flow():
     for a,b,y,label,color in steps:
         c.line([(centers[a],y),(centers[b],y)],color,arrow=True)
         c.text(min(centers[a],centers[b])+35,y-42,label,23,color)
-    c.box(1130, 580, 425, 95, '④ 查询或原子事务', ['本地计算日期、数量与金额'], '#eef8f5', '#add7cc', GREEN)
+    c.box(1130, 580, 425, 95, '④ 版本检查 / 原子事务', ['纠错、审计与幂等结果同提交'], '#eef8f5', '#add7cc', GREEN)
     c.box(60, 955, 1480, 100, '', tint='#edf3ff', border='#c7d8f3')
     c.text(90, 979, '更短的回答：服务端筛选 → 建议 3 条以内 → 按需继续查询', 27, BLUE)
-    c.text(90, 1020, '幂等重试复用 request_id；超时不等于事务回滚。图中不表示固定或已测得的延迟。', 21, MUTED)
+    c.text(90, 1020, '超时 / 取消 / 断线均可能已提交；重连不自动回放，同一 request_id 重试取原结果。', 21, MUTED)
     c.save('request-flow')
 
 
