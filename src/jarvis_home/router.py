@@ -98,6 +98,10 @@ def command(store, request_id, text):
     replay = store.replay_text(request_id, text)
     if replay:
         return {**replay, "elapsed_ms": round((perf_counter() - start) * 1000, 2), "route": "local", "model_calls": 0}
+    if not text:
+        return {"status": "needs_input", "message": "请补充要记录的内容。", "records": [],
+                "request_id": request_id, "route": "local", "model_calls": 0,
+                "elapsed_ms": round((perf_counter() - start) * 1000, 2)}
     if text in ("撤销", "撤销上一笔", "删掉上一笔", "刚才那条删掉"):
         result = store.execute(request_id, text=text, undo=True)
     elif re.fullmatch(r"(.{1,100})在哪[？?]?", text):

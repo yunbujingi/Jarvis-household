@@ -59,6 +59,43 @@ def test_child_exit_and_connection_close_cleanup(tmp_path, monkeypatch):
     asyncio.run(run())
 
 
+@pytest.mark.parametrize('cancel', [False, True])
+def test_draft_response_loss_reconnect_replay_and_undo(tmp_path, monkeypatch, capsys, cancel):
+    monkeypatch.setenv('JWS_STATUS_FILE', str(tmp_path/'status.json'))
+    directory = tmp_path/'test-draft-ledger'
+    store = Store(directory)
+    store.execute('test-lost-draft-source', text='测试草稿私密原文', draft=True)
+    args = {'name':'household_record', 'arguments':{
+        'request_id':'test-lost-draft-resolution', 'draft_id':'test-lost-draft-source',
+        'expected_draft_version':1, 'cancel_draft':cancel}}
+    if not cancel:
+        args['arguments']['changes'] = [{'action':'add_item', 'name':'测试草稿物品',
+            'quantity':2, 'unit':'盒', 'location':'测试柜'}]
+
+    async def run():
+        async with isolated_bridge(directory, drop_id=2) as (request, _, errors, children):
+            with pytest.raises(Exception):
+                await request(2, 'tools/call', args)
+            assert await asyncio.wait_for(errors.get(), 5) is ConnectionError
+        assert all(p.returncode is not None for p in children)
+        assert store.drafts()['draft_count'] == 0  # commit survived response loss
+        async with isolated_bridge(directory) as (request, _, _, _):
+            response = await request(2, 'tools/call', args)
+            result = json.loads(response['result']['content'][0]['text'])
+            assert result['replayed']
+            assert result['draft']['state'] == ('cancelled' if cancel else 'completed')
+            assert len(store.history()) == 2
+            assert len(store.snapshot()['items']) == (0 if cancel else 1)
+            response = await request(3, 'tools/call', {'name':'household_undo',
+                'arguments':{'request_id':'test-lost-draft-undo'}})
+            assert not response['result'].get('isError')
+        assert store.drafts()['records'][0]['version'] == 3
+        assert store.snapshot()['items'] == []
+    asyncio.run(run())
+    log = capsys.readouterr().out
+    assert '测试草稿' not in log and 'test-lost-draft' not in log
+
+
 def test_reconnect_classification_and_backoff(tmp_path, monkeypatch):
     endpoint=tmp_path/'endpoint'
     endpoint.write_text('wss://api.xiaozhi.me/mcp/?token=test-only')

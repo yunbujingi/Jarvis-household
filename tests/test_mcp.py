@@ -44,4 +44,29 @@ def test_real_stdio_handshake_record_query_undo(tmp_path):
                 await client.call_tool('household_undo', {'request_id':'mcp-items-undo'})
                 result = await client.call_tool('household_query', {'scope':'items'})
                 assert json.loads(result.content[0].text)['item_count'] == 0
+                saved = await client.call_tool('household_record', {'request_id':'test-mcp-draft-save', 'draft_text':'测试物品数量和位置待补充'})
+                assert json.loads(saved.content[0].text)['status'] == 'draft'
+                drafts = await client.call_tool('household_query', {'scope':'drafts', 'limit':3})
+                row = json.loads(drafts.content[0].text)['records'][0]
+                args = {'request_id':'test-mcp-draft-complete', 'draft_id':row['draft_id'],
+                        'expected_draft_version':row['version'], 'changes':[
+                            {'action':'add_item','name':'测试补全物品','quantity':1,'unit':'盒','location':'测试抽屉'}]}
+                result = await client.call_tool('household_record', args)
+                assert not result.isError and json.loads(result.content[0].text)['draft']['state'] == 'completed'
+                result = await client.call_tool('household_record', args)
+                assert json.loads(result.content[0].text)['replayed']
+                await client.call_tool('household_undo', {'request_id':'test-mcp-draft-undo'})
+                drafts = await client.call_tool('household_query', {'scope':'drafts'})
+                row = json.loads(drafts.content[0].text)['records'][0]
+                assert row['version'] == 3
+                result = await client.call_tool('household_record', {'request_id':'test-mcp-draft-cancel',
+                    'draft_id':row['draft_id'],'expected_draft_version':3,'cancel_draft':True})
+                assert json.loads(result.content[0].text)['draft']['state'] == 'cancelled'
+                invalid = await client.call_tool('household_query', {'scope':'drafts','name':'测试'})
+                assert invalid.isError
+                invalid = await client.call_tool('household_query', {'scope':'items','draft_state':'all'})
+                assert invalid.isError
+                invalid = await client.call_tool('household_record', {'request_id':'test-mcp-mixed-draft',
+                    'draft_text':'测试混用', 'changes':args['changes']})
+                assert invalid.isError
     asyncio.run(run())

@@ -39,18 +39,29 @@ async def check(directory):
             assert (await call("household_record", correction))["replayed"]
             rows = await call("household_query", {"scope": "items", "expiry": "unset"})
             assert rows["records"][0]["quantity"] == "2" and rows["records"][0]["location"] == "测试柜"
+            await call("household_record", {"request_id": "test-check-draft", "draft_text": "测试物品待补全"})
+            drafts = await call("household_query", {"scope": "drafts"})
+            draft = drafts["records"][0]
+            complete = {"request_id": "test-check-complete", "draft_id": draft["draft_id"],
+                        "expected_draft_version": 1, "changes": [{"action": "add_item", "name": "测试补全物品",
+                        "quantity": 1, "unit": "件", "location": "测试抽屉"}]}
+            await call("household_record", complete)
+            assert (await call("household_record", complete))["replayed"]
+            await call("household_undo", {"request_id": "test-check-complete-undo"})
+            assert (await call("household_query", {"scope": "drafts"}))["records"][0]["version"] == 3
     original = Store(ledger)
     backup(ledger, directory / "backup")
     restore(directory / "backup", directory / "restored")
     recovered = Store(directory / "restored")
     assert recovered.snapshot() == original.snapshot()
     assert recovered.history() == original.history()
+    assert recovered.drafts() == original.drafts()
     assert recovered.execute(**correction)["replayed"]
     recovered.execute("test-check-undo", undo=True)
     result = recovered.snapshot()["items"][0]
     assert result["name"] == "测试物品" and result["quantity"] == "3" and result["due"] == "2030-01-01"
     assert original.snapshot()["items"][0]["quantity"] == "2"
-    return {"installed_package": "passed", "stdio": "passed", "restore_audit_replay_undo": "passed"}
+    return {"installed_package": "passed", "stdio": "passed", "restore_audit_replay_undo": "passed", "draft_completion": "passed"}
 
 
 def main():
