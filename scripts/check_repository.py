@@ -7,9 +7,10 @@ from pathlib import PurePosixPath
 import re
 import subprocess
 import sys
+import tomllib
 
 ROOT_FILES = {'README.md', 'CONTRIBUTING.md', 'SECURITY.md', 'CHANGELOG.md', 'LICENSE',
-              '.gitignore', '.dockerignore', 'pyproject.toml', 'requirements.lock'}
+              '.gitignore', '.dockerignore', 'pyproject.toml', 'requirements.lock', 'MANIFEST.in'}
 PREFIXES = ('src/jarvis_home/', 'tests/', 'scripts/', '.github/',
             'docs/guides/', 'docs/images/', 'deploy/community/')
 PRIVATE_SUFFIXES = {'.sqlite3', '.db', '.pem', '.key', '.whl', '.zip', '.tar', '.gz'}
@@ -60,6 +61,12 @@ def main():
             for value in re.findall(r'[?&]token=([^&\s\"\'<>]+)', content):
                 if value not in {'x', 'y', 'test-only', '%0A', 'x#fragment'}:
                     errors.append(f'{name}: possible endpoint credential')
+    if 'pyproject.toml' in files:
+        version = tomllib.loads(files['pyproject.toml'].decode())['project']['version']
+        if f'## {version}' not in files.get('CHANGELOG.md', b'').decode():
+            errors.append('CHANGELOG.md: missing current version')
+        if f'jws-household:{version}-source' not in files.get('deploy/community/compose.yaml', b'').decode():
+            errors.append('compose.yaml: version mismatch')
     if not files:
         errors.append('No staged/tracked files to review.')
     for name, data in files.items():

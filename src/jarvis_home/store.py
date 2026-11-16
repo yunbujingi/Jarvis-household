@@ -1,4 +1,4 @@
-"""Single-owner encrypted records. SQLite transaction = one reversible command."""
+"""Shared-household encrypted records. SQLite transaction = one reversible command."""
 import hashlib
 import hmac
 import json
@@ -56,8 +56,9 @@ class Store:
                 CREATE TABLE IF NOT EXISTS operations(seq INTEGER PRIMARY KEY AUTOINCREMENT,
                     id TEXT UNIQUE NOT NULL, digest TEXT NOT NULL, payload BLOB NOT NULL);
                 CREATE TABLE IF NOT EXISTS meta(id TEXT PRIMARY KEY, payload BLOB NOT NULL);
-                PRAGMA user_version=1;
             ''')
+            if version == 0:
+                db.execute("PRAGMA user_version=1")
             check = db.execute("SELECT payload FROM meta WHERE id='key-check'").fetchone()
             if check:
                 self.unpack("meta:key-check", check[0])
@@ -112,11 +113,26 @@ class Store:
         changes = [c if isinstance(c, Change) else Change.model_validate(c) for c in changes]
         if len(changes) > 20 or (undo and (changes or draft)):
             raise ValueError("每次最多20项；撤销不能与其他操作混用")
-        body = {"changes": [c.model_dump(mode="json") for c in changes], "text": text, "undo": undo, "draft": draft}
-        digest = hmac.new(self.key, json.dumps(body, sort_keys=True, ensure_ascii=False).encode(), hashlib.sha256).hexdigest()
+        # Omit only new default fields to retain the 0.2.1 request digest.
+        serialized = []
+        for change in changes:
+            value = change.model_dump(mode="json")
+            for field, default in (("new_name", None), ("set_quantity", None), ("clear_due", False)):
+                if value[field] == default:
+                    value.pop(field)
+            serialized.append(value)
+        body = {"changes": serialized, "text": text, "undo": undo, "draft": draft}
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
             previous = db.execute("SELECT digest,payload FROM operations WHERE id=?", (request_id,)).fetchone()
+            if previous:
+                previous_op = self.unpack("operation:" + request_id, previous[1])
+                # An omitted date means the date of the original attempt, even after midnight.
+                for index, change in enumerate(changes):
+                    old_changes = previous_op["input"]["changes"]
+                    if "on" not in change.model_fields_set and index < len(old_changes):
+                        body["changes"][index]["on"] = old_changes[index]["on"]
+            digest = hmac.new(self.key, json.dumps(body, sort_keys=True, ensure_ascii=False).encode(), hashlib.sha256).hexdigest()
             if previous:
                 if previous[0] != digest:
                     raise Conflict("同一请求编号不能用于不同内容")
@@ -188,13 +204,28 @@ class Store:
                             record["quantity"] = str(remaining)
                             record["deleted"] = remaining == 0
                         elif old["type"] == "expense":
+                            if change.new_name is not None or change.set_quantity is not None or change.clear_due or change.due is not None:
+                                raise ValueError("物品纠错字段不能用于账目")
                             if change.amount is None:
                                 raise ValueError("修改账目需提供金额")
                             record["cents"] = int(change.amount * 100)
                         else:
-                            if change.location is None:
-                                raise ValueError("修改物品需提供位置")
-                            record["location"] = change.location
+                            if change.amount is not None:
+                                raise ValueError("物品不能修改账目金额")
+                            if all(v is None for v in (change.location, change.new_name, change.set_quantity, change.due)) and not change.clear_due:
+                                raise ValueError("修改物品需提供纠错字段")
+                            if change.location is not None:
+                                record["location"] = change.location
+                            if change.new_name is not None:
+                                record["name"] = change.new_name
+                            if change.set_quantity is not None:
+                                if change.unit != old["unit"]:
+                                    raise ValueError("数量修正需要原单位，不自动换算")
+                                record["quantity"] = str(change.set_quantity)
+                                record["deleted"] = change.set_quantity == 0
+                            if change.due is not None or change.clear_due:
+                                record["due"] = str(change.due) if change.due else None
+                                record["due_source"] = "user" if change.due else "unset"
                     records[rid] = record
                     after[rid] = record.copy()
                 notes = []

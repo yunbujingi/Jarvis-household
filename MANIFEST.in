@@ -1,0 +1,6 @@
+include LICENSE requirements.lock CHANGELOG.md SECURITY.md CONTRIBUTING.md
+recursive-include tests *.py *.json
+recursive-include scripts *.py *.sh
+recursive-include docs/guides *.md *.json
+recursive-include docs/images *.svg *.png
+recursive-include deploy/community Dockerfile *.yaml

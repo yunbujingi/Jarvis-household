@@ -53,7 +53,26 @@ name/location/expiry/days的非默认筛选仅能与scope=items一起使用，�
 {"request_id":"example-move-001","changes":[{"action":"update","name":"备用电池","record_id":"<query-result-id>","expected_version":1,"location":"玄关抽屉"}]}
 ```
 
-当前update对物品只更新位置，对账目只更新金额；不支持直接修改到期日或物品名称。consume需要quantity、同单位unit和正确版本，余额不足拒绝。同名不唯一时必须指定ID，不猜测批次。
+`update`保留原位置/费用金额调用，物品新增以下可选字段：
+
+| 字段 | 语义 |
+| --- | --- |
+| name | 原记录名称；仍为必填。改名不会改变记录ID |
+| new_name | 新名称；必须同时指定record_id |
+| location | 新位置；省略不变 |
+| due | 用户明确日期；省略或null不修改 |
+| clear_due | true明确清空日期并将due_source改为unset；不能同时设置due |
+| set_quantity | 绝对余量，0–100000，最多3位小数；必须提供原unit，不换算单位 |
+
+`consume.quantity`是扣减量，必须大于0，不能与set_quantity混用。`update.quantity`拒绝，避免把“改为2盒”误解为“用掉2盒”。绝对余量为0与取用耗尽一致：记录软删除，仍可撤销恢复。
+
+修改和取用须先查询版本；同名多批必须使用record_id，不随机选择。单一名称匹配的旧调用继续有效；改名始终要求ID。无纠错字段、错误单位、空白名称、无效日期拒绝写入。多项操作任一失败即整体回滚。
+
+```json
+{"request_id":"test-correction-001","changes":[{"action":"update","name":"测试牛奶","record_id":"从查询取得的编号","expected_version":1,"new_name":"测试酸奶","location":"测试冷藏二层","clear_due":true,"set_quantity":"2","unit":"盒"}]}
+```
+
+request_id是业务幂等标识，区别于JSON-RPC id。响应丢失后必须保留原ID与原参数；已成功的请求重试返回原records和`replayed=true`，不追加审计。即使该操作后来被撤销，也不会再次执行。省略on的跨日重试沿用首次记录日期；明确传入不同on仍冲突。工具桥不会替用户自动重放写入。
 
 结果含status、message、records、replayed。重复成功请求返回原结果及replayed=true。调用失败应按明确错误处理，不得声称已保存。
 

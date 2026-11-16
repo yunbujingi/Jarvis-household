@@ -1,10 +1,10 @@
-# JWS 家庭助手
+# Jarvis-household · 家庭共享账本
 
 **让小智记住家里的物品、位置和日常开销。**
 
 JWS 是运行在 NAS 或独立主机上的家庭账本，通过 MCP（模型上下文协议）接入官方小智。保留已有模型与音色，用三个工具完成记录、查询和撤销；已有 Home Assistant 与猫咪管家继续通过各自的工具桥工作。
 
-> 当前版本 **0.2.1**。仓库为私人开源准备仓库，尚未公开发布；许可证待确定。
+> 当前版本 **0.3.0 开源预览版**，采用 [MIT 许可证](LICENSE)。面向小智的家庭共享账本、物品管理与 MCP 工具桥，可在 NAS 或独立主机部署。
 
 ![家庭助手连接拓扑](docs/images/topology.png)
 
@@ -16,7 +16,7 @@ JWS 是运行在 NAS 或独立主机上的家庭账本，通过 MCP（模型上�
 | 查找物品 | 名称与位置筛选、余量、记录编号和版本 | 记录的位置不代表物品此刻的实际位置 |
 | 到期日查询 | 今天、已超期、未来 N 天、未填日期；按日期排序 | 日期以北京时间计算，不推断食品安全 |
 | 日常记账 | 支出、收入、转账、退款，月度净支出和分类汇总 | 金额以分存储；未实现预算、个人账隔离或退款关联 |
-| 修改与取用 | 位置更新、同单位扣减、费用金额修改 | 需要唯一记录及正确版本；不能超量扣减 |
+| 修改与取用 | 名称、位置、到期日、绝对余量纠错；同单位扣减；费用金额修改 | 需要唯一记录及正确版本；不能超量扣减 |
 | 撤销与审计 | 原子事务、幂等请求、补偿撤销、加密操作记录 | 只能撤销账本，不撤回设备的物理动作 |
 | 本机网页 | 文字快捷入口与账本预览，绑定回环地址 | 不提供语音、远程认证或与另一台 NAS 的同步 |
 
@@ -56,15 +56,18 @@ flowchart LR
 
 ## 本机快速开始
 
-需要 Python 3.12。以下命令从仓库根目录运行：
+已验证范围与待验收平台见[验收说明](docs/guides/verification.md)。从仓库根目录使用 Python 3.12 开始：
 
 ```sh
 python3.12 -m venv .venv
-.venv/bin/python -m pip install -e '.[dev]'
-.venv/bin/jarvis-home
+.venv/bin/python -m pip install -c requirements.lock .
+# 无凭据、无真实数据的安装/MCP/备份/恢复验收
+.venv/bin/jarvis-home-check
+# 可选：以独立目录打开本机网页
+JWS_DATA_DIR="$HOME/.local/share/jws-preview/ledger" .venv/bin/jarvis-home
 ```
 
-打开 <http://127.0.0.1:18600/>，数据默认位于 `.runtime/`。本机网页支持有限快捷语法，例如：
+打开 <http://127.0.0.1:18600/>，上例数据位于用户主目录下独立的 `.local/share/jws-preview/ledger`，属于需长期保护的账本；不设置环境变量时才使用 `.runtime/`。本机网页支持有限快捷语法，例如：
 
 ```text
 买了三个番茄、一盒牛奶，花了15元
@@ -75,9 +78,15 @@ python3.12 -m venv .venv
 撤销
 ```
 
-本机文字路由不调用模型；未完整识别的指令加密保存为草稿，不会部分写入，也不会自动重试。**网页快捷语法与官方语音不是同一条解析链路**：0.2.1 的精准到期筛选通过 MCP 提供。本机与 NAS 使用不同目录时就是两个独立账本。
+本机文字路由不调用模型；未完整识别的指令加密保存为草稿，不会部分写入，也不会自动重试。**网页快捷语法与官方语音不是同一条解析链路**：精准到期筛选与结构化纠错通过 MCP 提供。本机与 NAS 使用不同目录时就是两个独立账本。
 
 ## NAS / Docker 部署
+
+先无凭据验证容器（独占测试卷、禁用网络，退出时仅清理该测试卷）：
+
+```sh
+sh scripts/test_container.sh
+```
 
 新部署示例使用独立项目名，不开放应用端口，也不挂载 Docker socket：
 
@@ -104,16 +113,19 @@ docker compose -f deploy/community/compose.yaml logs --tail 20 household
 ## 开发与验证
 
 ```sh
+.venv/bin/python -m pip install -r requirements.lock -e '.[dev]'
 .venv/bin/python -m pytest -q
+.venv/bin/ruff check src tests scripts
 .venv/bin/python -m compileall -q src
 .venv/bin/python -m pip check
 .venv/bin/python -m build
+.venv/bin/python scripts/verify_dist.py dist
 python3 scripts/check_repository.py
 ```
 
 测试使用临时数据库，不连接真实小智账号或家居设备。CI 执行测试、构建、仓库检查与容器构建；**不会发布软件包、部署 NAS 或执行设备动作**。
 
-目前已记录的验证包括 52 项本机测试、NAS 隔离 MCP 写入/查询/撤销及升级前后数据比对。费用记账语音已获真实硬件反馈；物品入库/位置/到期日的真人语音反馈仍待完成。最新状态与证据层级见[验收说明](docs/guides/verification.md)。
+每次 PR 的 CI 分别验证 Python 3.12/3.13、实际 wheel/sdist、依赖漏洞、容器权限与恢复。0.3.0 已完成一次 Linux x86_64 NAS 部署和真实小智入库、纠错、撤销验收，见[脱敏验收报告](docs/guides/nas-voice-acceptance.md)；CI 不代表完整语音链路。详见[验收与语音脚本](docs/guides/verification.md)、[性能基准](docs/guides/performance.md)和[版本交付流程](docs/guides/releases.md)。
 
 ## 目录导航
 
@@ -135,8 +147,8 @@ scripts/              仓库检查与图片生成
 
 ## 路线与贡献
 
-下一阶段：完成物品真人语音验收、可靠纠错与草稿补全、自动备份、成员隔离，再推进提醒与跨模块调度。完整范围见[路线图](docs/guides/roadmap.md)。
+下一阶段：草稿补全与备份运维；成员身份、主动提醒和跨模块调度另行设计，不属于本预览版。完整范围见[路线图](docs/guides/roadmap.md)。
 
-提交变更前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。许可证、依赖许可清单和公开发布检查见[开源准备清单](docs/guides/open-source-readiness.md)。当前没有公开发布或开源许可承诺。
+提交变更前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。许可证、依赖许可清单和公开发布检查见[开源准备清单](docs/guides/open-source-readiness.md)。代码按 MIT 授权；尚未发布公共软件包或容器镜像。
 
 相关项目：[小智 ESP32 固件](https://github.com/78/xiaozhi-esp32)、[官方 MCP 示例](https://github.com/78/mcp-calculator)、[Home Assistant](https://www.home-assistant.io/)。它们是独立项目，JWS 不代表其官方立场。

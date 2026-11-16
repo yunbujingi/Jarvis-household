@@ -1,8 +1,4 @@
 import concurrent.futures
-import json
-import os
-from decimal import Decimal
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -10,7 +6,7 @@ from cryptography.exceptions import InvalidTag
 from fastapi.testclient import TestClient
 
 from jarvis_home.models import Change, today
-from jarvis_home.router import command, parse
+from jarvis_home.router import command
 from jarvis_home.store import Conflict, Store
 from jarvis_home.web import create_app
 
@@ -113,7 +109,7 @@ def test_consume_version_and_undo_chain(store):
 
 
 def test_no_negative_quantity_or_unit_conversion(store):
-    item = store.execute(uid(), [Change(action='add_item',name='菠菜',quantity=1,unit='把',location='冷藏')])['records'][0]
+    store.execute(uid(), [Change(action='add_item',name='菠菜',quantity=1,unit='把',location='冷藏')])
     for q,u,exc in [(2,'把',Conflict),(1,'克',ValueError)]:
         with pytest.raises(exc):
             store.execute(uid(), [Change(action='consume',name='菠菜',quantity=q,unit=u,expected_version=1)])

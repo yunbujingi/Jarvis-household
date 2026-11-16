@@ -43,7 +43,10 @@ def create_server(directory):
         """按明确指令记录家庭物品或账目；成功后简短复述。
         物品入库用action=add_item，提供name、quantity、unit、location；due仅填用户明确给出的YYYY-MM-DD到期日，未说则留空，不猜保质期。
         缺少数量/单位/位置或日期含糊时先简短追问。多件可一次提交；同名不同批次各自保留。
-        移位置用update，先查询获取record_id和expected_version再写location；不能用add_item假装移动。
+        纠错用update，先查record_id和expected_version；name是原名，new_name改名，location改位置。
+        due设置到期日；省略或null不修改；clear_due=true明确清除日期，不得同时传due。
+        set_quantity是修正后的绝对余量（可为0），须提供原unit；consume的quantity是扣减量，不能混用。
+        同名批次必须指定record_id，不随机选；不能用add_item假装修改。
         同请求重试保持request_id；多条原子写入，可撤销；不控制设备。
         """
         return store.execute(request_id, changes)

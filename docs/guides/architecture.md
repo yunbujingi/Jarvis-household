@@ -61,3 +61,25 @@ sequenceDiagram
 `bridge.py`是传输层，`mcp.py`是工具契约，`inventory.py`是查询计算，`models.py`定义数据约束，`store.py`维护业务事务，`backup.py`生成一致性备份。网页通过`router.py`调用同一Store，但其有限文字语法不等同于官方模型的语义解析。
 
 参考：[官方小智MCP示例](https://github.com/78/mcp-calculator)、[小智固件仓库](https://github.com/78/xiaozhi-esp32)。JWS只参考协议接入方式，不打包这些项目的源码。
+
+
+## 观测与失败路径
+
+```mermaid
+flowchart TD
+  A[启动 starting] --> B{凭据检查}
+  B -->|缺失| C[awaiting_configuration]
+  B -->|无效| D[configuration_error 停止连接]
+  B -->|有效| E[connected]
+  E --> F[ready 初始化完成]
+  F --> G[工具调用 生成随机call_id]
+  G --> H{20秒内响应?}
+  H -->|是| I[success / error + elapsed_ms]
+  H -->|否| J[timeout_unknown 结果未知]
+  J --> K[关闭连接 / 回收子进程]
+  F -->|断线或子进程退出| K
+  K --> L[reconnecting 指数退避+抖动]
+  L --> B
+```
+
+JSON-RPC id不写日志；随机call_id只用于关联本次桥接调用。工具类别来自三个固定名称，不记录请求正文、业务request_id或结果内容。子进程退出属于可恢复故障；协议/TLS或认证拒绝停止连接，避免反复请求。断线只重建连接，不回放任何未确认写入。

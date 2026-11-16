@@ -1,7 +1,6 @@
 import asyncio
 import json
 import sys
-from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -61,3 +60,19 @@ def test_real_child_through_websocket_relay(tmp_path):
         finally:
             child.terminate(); await child.wait()
     asyncio.run(run())
+
+
+def test_configure_private_file_and_no_overwrite(tmp_path, monkeypatch):
+    import os
+    path=tmp_path/'test-config'/'endpoint'
+    monkeypatch.setenv('JWS_ENDPOINT_FILE',str(path))
+    monkeypatch.setattr(bridge.getpass,'getpass',lambda _: 'wss://api.xiaozhi.me/mcp/?token=test-only')
+    old_mask=os.umask(0o077)
+    try:
+        bridge.configure()
+        assert path.stat().st_mode & 0o777==0o600
+        assert bridge.read_endpoint(path).endswith('test-only')
+        with pytest.raises(SystemExit,match='endpoint_already_configured'):
+            bridge.configure()
+    finally:
+        os.umask(old_mask)

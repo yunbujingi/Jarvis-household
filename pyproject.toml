@@ -1,21 +1,29 @@
 [build-system]
-requires = ["setuptools>=75"]
+requires = ["setuptools==84.2.1"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "jarvis-home"
-version = "0.2.1"
-description = "Private household ledger and tools for the existing Xiaozhi and HA setup"
+version = "0.3.0"
+description = "Shared household ledger, inventory and MCP bridge for Xiaozhi"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
-dependencies = ["cryptography==46.0.7", "fastapi==0.162.7", "uvicorn==0.54.0", "mcp==1.30.0", "websockets==14.2"]
+dependencies = ["cryptography==50.0.2", "fastapi==0.162.7", "uvicorn==0.54.0", "mcp==1.30.0", "websockets==14.2"]
 [project.optional-dependencies]
-dev = ["pytest==9.2.0", "build==1.6.1", "httpx==0.28.1"]
+dev = ["pytest==9.2.0", "build==1.6.1", "httpx==0.28.1", "ruff==0.17.5", "pip-audit==2.10.1"]
 [project.scripts]
 jarvis-home = "jarvis_home.web:main"
 jarvis-home-mcp = "jarvis_home.mcp:main"
 jarvis-home-bridge = "jarvis_home.bridge:main"
+jarvis-home-check = "jarvis_home.check:main"
+jarvis-home-backup = "jarvis_home.backup:main"
+jarvis-home-restore = "jarvis_home.backup:restore_main"
 jarvis-home-configure = "jarvis_home.bridge:configure"
 [tool.setuptools.package-data]
 jarvis_home = ["static/*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff.lint]
+select = ["F", "E9"]

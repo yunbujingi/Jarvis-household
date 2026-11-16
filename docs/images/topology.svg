@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1130" viewBox="0 0 1600 1130" role="img">
 <rect width="100%" height="100%" fill="#f4f7fb"/>
 <text x="60" y="86" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="44" fill="#152b40">JWS 家庭助手 · 连接拓扑</text>
-<text x="62" y="128" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="25" fill="#506579">保留现有语音与家居体验，增加独立的家庭账本。</text>
+<text x="62" y="128" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="25" fill="#506579">家庭共享账本 · 无成员身份鉴别 · 保留现有语音与家居体验。</text>
 <rect x="60" y="180" width="350" height="155" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
 <text x="84" y="230" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">小智硬件</text>
 <text x="84" y="271" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">收音 · 播放 · 设备交互</text>
@@ -17,16 +17,16 @@
 <text x="84" y="480" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#087d70">NAS / 独立主机</text>
 <rect x="90" y="520" width="290" height="155" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
 <text x="114" y="570" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">JWS 出站桥</text>
-<text x="114" y="611" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">凭据隔离 / 断线重连</text>
+<text x="114" y="611" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">凭据隔离 / 脱敏耗时</text>
 <text x="114" y="645" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">只转发三个账本工具</text>
 <rect x="425" y="520" width="270" height="155" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
 <text x="449" y="570" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">MCP 工具</text>
 <text x="449" y="611" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">记录 · 查询 · 撤销</text>
-<text x="449" y="645" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">字段验证 / 确定计算</text>
+<text x="449" y="645" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">入库纠错 / 版本检查</text>
 <rect x="740" y="520" width="280" height="155" rx="20" fill="white" stroke="#d6e0eb" stroke-width="2"/>
 <text x="764" y="570" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="28" fill="#152b40">加密账本</text>
 <text x="764" y="611" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">SQLite / 事务 / 审计</text>
-<text x="764" y="645" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">一致性备份与密钥</text>
+<text x="764" y="645" font-family="PingFang SC,Noto Sans CJK SC,sans-serif" font-size="22" fill="#506579">校验备份 / 独立恢复</text>
 <polyline points="380,598 425,598" fill="none" stroke="#087d70" stroke-width="3"/>
 <polygon points="425,598 412.58207108109,604.4649084575808 412.58207108109,591.5350915424192" fill="#087d70"/>
 <polygon points="380,598 392.41792891891,591.5350915424192 392.41792891891,604.4649084575808" fill="#087d70"/>
